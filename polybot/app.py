@@ -7,7 +7,24 @@ app = flask.Flask(__name__)
 
 
 # TODO load TELEGRAM_TOKEN value from Secret Manager
-TELEGRAM_TOKEN = ...
+def get_telegram_token():
+    # Specify the secret name
+    secret_name = "EDEN-Poly"
+
+    # Create a Secrets Manager client
+    client = boto3.client('secretsmanager')
+
+    # Retrieve the secret value
+    response = client.get_secret_value(SecretId=secret_name)
+
+    # Parse and return the Telegram token
+    secret_string = response['SecretString']
+    secret_dict = json.loads(secret_string)
+    return secret_dict['TELEGRAM_TOKEN']
+
+if __name__ == "__main__":
+    TELEGRAM_TOKEN = get_telegram_token()
+    print(f"Telegram Token: {TELEGRAM_TOKEN}")
 
 TELEGRAM_APP_URL = os.environ['TELEGRAM_APP_URL']
 
