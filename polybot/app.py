@@ -25,7 +25,7 @@ def get_telegram_token():
 if __name__ == "__main__":
     TELEGRAM_TOKEN = get_telegram_token()
     print(f"Telegram Token: {TELEGRAM_TOKEN}")
-
+TELEGRAM_TOKEN = get_telegram_token()
 TELEGRAM_APP_URL = os.environ['TELEGRAM_APP_URL']
 
 

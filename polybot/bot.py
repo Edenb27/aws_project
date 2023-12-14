@@ -93,6 +93,6 @@ class ObjectDetectionBot(Bot):
             self.send_photo(msg['chat']['id'], local_path)
             self.send_text(msg['chat']['id'], f'prediction: {summary_label}')
 
-            # TODO upload the photo to S3
+            # TODO upload the photo to S3 -done
             # TODO send a job to the SQS queue
             # TODO send message to the Telegram end-user (e.g. Your image is being processed. Please wait...)
