@@ -68,9 +68,30 @@ class Bot:
 class ObjectDetectionBot(Bot):
     def handle_message(self, msg):
         logger.info(f'Incoming message: {msg}')
+        if msg.get('text'):
+            hello = f'\nHello and welcome to Eden Predict-Bot \n' \
+                    f'\n Please send image to prediction'
+            self.send_text(msg['chat']['id'], hello)
 
         if self.is_current_msg_photo(msg):
             photo_path = self.download_user_photo(msg)
+            BUCKET_NAME = 'edenb27-docker'
+            img_name = f'images/{photo_path}'
+            client = boto3.client('s3')
+            client.upload_file(photo_path, BUCKET_NAME, img_name)
+            summary_dic, s3_pred_path = yolo5_request(img_name)
+            summary_label = ''
+            for key in summary_dic.keys():
+                summary_label = summary_label + key + ": " + summary_dic[key].__str__() + " "
+
+            logger.info(f'summary_label:    {summary_label}')
+            logger.info(f'summary_dic:  {summary_dic}')
+            filename = photo_path.split('/')[-1]
+            local_path = f'images/pred/{filename}'
+            os.makedirs('images/pred/', exist_ok=True)
+            client.download_file(BUCKET_NAME, s3_pred_path, local_path)
+            self.send_photo(msg['chat']['id'], local_path)
+            self.send_text(msg['chat']['id'], f'prediction: {summary_label}')
 
             # TODO upload the photo to S3
             # TODO send a job to the SQS queue
