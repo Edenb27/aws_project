@@ -90,8 +90,8 @@ class ObjectDetectionBot(Bot):
             local_path = f'images/pred/{filename}'
             os.makedirs('images/pred/', exist_ok=True)
             client.download_file(BUCKET_NAME, s3_pred_path, local_path)
-            self.send_photo(msg['chat']['id'], local_path)
-            self.send_text(msg['chat']['id'], f'prediction: {summary_label}')
+            #self.send_photo(msg['chat']['id'], local_path)
+            #self.send_text(msg['chat']['id'], f'prediction: {summary_label}')
 
             # TODO upload the photo to S3 -done
             # TODO send a job to the SQS queue
