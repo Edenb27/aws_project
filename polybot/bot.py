@@ -94,5 +94,12 @@ class ObjectDetectionBot(Bot):
             #self.send_text(msg['chat']['id'], f'prediction: {summary_label}')
 
             # TODO upload the photo to S3 -done
+
+            sqs_client = boto3.client('sqs', region_name=us-east-2)
+            sqs_client.send_message(QueueUrl=sqs_url, DelaySeconds=10, MessageBody=str(msg))
+
+            chat_id = msg['from']['id']
+            self.send_text(chat_id, "Your image is being processed. Please wait...")
+
             # TODO send a job to the SQS queue
             # TODO send message to the Telegram end-user (e.g. Your image is being processed. Please wait...)

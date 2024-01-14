@@ -6,10 +6,10 @@ from loguru import logger
 import os
 import boto3
 
-images_bucket = os.environ['BUCKET_NAME']
-queue_name = os.environ['SQS_QUEUE_NAME']
+images_bucket = os.environ['edenb27-docker']
+queue_name = os.environ['edenb-yolo5']
 
-sqs_client = boto3.client('sqs', region_name='YOUR_REGION_HERE')
+sqs_client = boto3.client('sqs', region_name='us-east-2')
 
 with open("data/coco128.yaml", "r") as stream:
     names = yaml.safe_load(stream)['names']
@@ -29,9 +29,12 @@ def consume():
             logger.info(f'prediction: {prediction_id}. start processing')
 
             # Receives a URL parameter representing the image to download from S3
-            img_name = ...  # TODO extract from `message`
-            chat_id = ...  # TODO extract from `message`
-            original_img_path = ...  # TODO download img_name from S3, store the local image path in original_img_path
+            img_name = f"{message}.jpeg"
+            chat_id = message
+            original_img_path = f"/app/{img_name}"
+            s3_client = boto3.client('s3')
+            s3_client.download_file(images_bucket, img_name, original_img_path)
+# TODO download img_name from S3, store the local image path in original_img_path
 
             logger.info(f'prediction: {prediction_id}/{original_img_path}. Download img completed')
 
@@ -50,6 +53,10 @@ def consume():
             # This is the path for the predicted image with labels
             # The predicted image typically includes bounding boxes drawn around the detected objects, along with class labels and possibly confidence scores.
             predicted_img_path = Path(f'static/data/{prediction_id}/{original_img_path}')
+
+            s3_client.upload_file(predicted_img_path, images_bucket, original_img_path)
+
+            logger.info('upload success')
 
             # TODO Uploads the predicted image (predicted_img_path) to S3 (be careful not to override the original image).
 
@@ -78,8 +85,14 @@ def consume():
                 }
 
                 # TODO store the prediction_summary in a DynamoDB table
-                # TODO perform a GET request to Polybot to `/results` endpoint
 
+                dynamodb = boto3.resource('dynamodb', region_name='us-east-2')
+                table_name = 'edenb-yolo5'
+                table = dynamodb.Table(table_name)
+                table.put_item(Item=prediction_summary)
+
+                # TODO perform a GET request to Polybot to `/results` endpoint
+            requests.get('https://eden-polybot.devops-int-college.com:8443/results?predictionId={prediction_id}&chatId={chat_id}')
             # Delete the message from the queue as the job is considered as DONE
             sqs_client.delete_message(QueueUrl=queue_name, ReceiptHandle=receipt_handle)
 

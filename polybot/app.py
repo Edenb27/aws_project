@@ -25,7 +25,7 @@ def get_telegram_token():
     return secret_dict['TELEGRAM_TOKEN']
 
 TELEGRAM_TOKEN = get_telegram_token()
-TELEGRAM_APP_URL = 'eden-polybot.devops-int-college.com'
+TELEGRAM_APP_URL = 'https://eden-polybot.devops-int-college.com:8443'
 
 
 @app.route('/', methods=['GET'])
