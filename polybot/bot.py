@@ -79,27 +79,26 @@ class ObjectDetectionBot(Bot):
             img_name = f'images/{photo_path}'
             client = boto3.client('s3')
             client.upload_file(photo_path, BUCKET_NAME, img_name)
-            summary_dic, s3_pred_path = yolo5_request(img_name)
-            summary_label = ''
-            for key in summary_dic.keys():
-                summary_label = summary_label + key + ": " + summary_dic[key].__str__() + " "
-
-            logger.info(f'summary_label:    {summary_label}')
-            logger.info(f'summary_dic:  {summary_dic}')
-            filename = photo_path.split('/')[-1]
-            local_path = f'images/pred/{filename}'
-            os.makedirs('images/pred/', exist_ok=True)
-            client.download_file(BUCKET_NAME, s3_pred_path, local_path)
-            #self.send_photo(msg['chat']['id'], local_path)
-            #self.send_text(msg['chat']['id'], f'prediction: {summary_label}')
-
-            # TODO upload the photo to S3 -done
 
             sqs_client = boto3.client('sqs', region_name=us-east-2)
-            sqs_client.send_message(QueueUrl=sqs_url, DelaySeconds=10, MessageBody=str(msg))
+            sqs_url = 'https://sqs.us-east-2.amazonaws.com/352708296901/edenb-yolo5'
+            message_body = str(msg["chat"]["id"])
+            message_id = f'{msg["chat"]["id"]}.jpeg'
+            sqs_client.send_message(
+                    QueueUrl=sqs_url,
+                    MessageBody=message_body,
+                    MessageAttributes={
+                        'CustomMessageID': {
+                        'DataType': 'String',
+                        'StringValue': message_id
+                        }
+                    }
+            )
 
             chat_id = msg['from']['id']
-            self.send_text(chat_id, "Your image is being processed. Please wait...")
+            self.send_text(chat_id, f'Please wait your image is being processed...')
 
+
+            # TODO upload the photo to S3 -done
             # TODO send a job to the SQS queue
             # TODO send message to the Telegram end-user (e.g. Your image is being processed. Please wait...)
