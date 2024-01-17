@@ -80,7 +80,7 @@ class ObjectDetectionBot(Bot):
             client = boto3.client('s3')
             client.upload_file(photo_path, BUCKET_NAME, img_name)
 
-            sqs_client = boto3.client('sqs', region_name=us-east-2)
+            sqs_client = boto3.client('sqs', region_name='us-east-2')
             sqs_url = 'https://sqs.us-east-2.amazonaws.com/352708296901/edenb-yolo5'
             message_body = str(msg["chat"]["id"])
             message_id = f'{msg["chat"]["id"]}.jpeg'
