@@ -6,8 +6,8 @@ from loguru import logger
 import os
 import boto3
 
-images_bucket = os.environ['edenb27-docker']
-queue_name = os.environ['edenb-yolo5']
+images_bucket = 'edenb27-docker'
+queue_name = 'edenb-yolo5'
 
 sqs_client = boto3.client('sqs', region_name='us-east-2')
 
