@@ -40,15 +40,23 @@ def webhook():
     return 'Ok'
 
 
-@app.route(f'/results/', methods=['GET'])
+@app.route(f'/results', methods=['GET'])
 def results():
     prediction_id = request.args.get('predictionId')
+    chat_id = request.args.get('chatId')
 
     # TODO use the prediction_id to retrieve results from DynamoDB and send to the end-user
+    dynamodb = boto3.resource('dynamodb', region_name='us-east-2')
+    table_name = 'edenb-yolo5'
+    table = dynamodb.Table(table_name)
 
-    chat_id = ...
-    text_results = ...
+    primary_key = {
+        'prediction_id': str(prediction_id)
+    }
 
+    item = table.get_item(Key=primary_key)['Item']
+    text_results = 'Predictions: ' + item['detected_objects']
+    print(f'chatId: {chat_id}')
     bot.send_text(chat_id, text_results)
     return 'Ok'
 

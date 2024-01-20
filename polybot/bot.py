@@ -76,7 +76,7 @@ class ObjectDetectionBot(Bot):
         if self.is_current_msg_photo(msg):
             photo_path = self.download_user_photo(msg)
             BUCKET_NAME = 'edenb27-docker'
-            img_name = f'images/{photo_path}'
+            img_name = f'images/photos/{msg["chat"]["id"]}.jpeg'
             client = boto3.client('s3')
             client.upload_file(photo_path, BUCKET_NAME, img_name)
 
@@ -86,9 +86,9 @@ class ObjectDetectionBot(Bot):
             message_id = f'{msg["chat"]["id"]}.jpeg'
             sqs_client.send_message(
                     QueueUrl=sqs_url,
-                    MessageBody=message_body,
+                    MessageBody=img_name + ' ' + message_body,
                     MessageAttributes={
-                        'CustomMessageID': {
+                        'MessageId': {
                         'DataType': 'String',
                         'StringValue': message_id
                         }
