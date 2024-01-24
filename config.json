@@ -1,0 +1,10 @@
+
+{
+   "TargetValue":10,
+   "CustomizedMetricSpecification":{
+      "MetricName":"BacklogPerInstance",
+      "Namespace":"edenb27-AWS-metric",
+      "Statistic":"Average",
+      "Unit":"None"
+   }
+}
